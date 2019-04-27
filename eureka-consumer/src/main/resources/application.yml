@@ -1,0 +1,53 @@
+server:
+  port: 8887
+spring:
+  application:
+    name: eureka-consumer
+eureka:
+  client:
+    service-url:
+      defaultZone: http://192.168.137.1:8888/eureka
+    #client 从注册中心拉去server注册信息的频率,测试环境可以调整
+    registry-fetch-interval-seconds: 5
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.cloud.client.ip-address}:${spring.application.name}:${server.port}
+    health-check-url: /health
+management:
+  #暴露端点配置
+  endpoint:
+    info:
+      enabled: true
+    health:
+      enabled: true
+    hystrix:
+      stream:
+        enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+feign:
+  client:
+    config:
+      HelloFeignService:
+        connectTimeout: 2000
+        readTimeout: 5000
+        loggerLevel: full
+  hystrix:
+    enabled: true
+
+
+#熔断机制配置
+hystrix:
+  shareSecurityContext: true
+  command:
+    default:
+      circuitBreaker:
+        sleepWindowInMilliseconds: 10000
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 10000
+
